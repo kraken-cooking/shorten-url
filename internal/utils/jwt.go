@@ -8,10 +8,10 @@ import (
 )
 
 // Secret key used to sign JWT
-var jwtSecret = []byte("secret_key_here")
+var jwtSecret = []byte("supper_secret")
 
 // Claims is a struct that represents the JWT claims
-type Claims struct {
+type AuthClaims struct {
 	UserID uint `json:"user_id"`
 	jwt.RegisteredClaims
 }
@@ -19,13 +19,11 @@ type Claims struct {
 // GenerateJWT generates a JWT token with a custom claim
 func GenerateJWT(userID uint) (string, error) {
 	// Set custom claims
-	claims := &Claims{
+	claims := &AuthClaims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			// Standard JWT claims
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			// Optionally, you can add other claims like Issuer, Audience, etc.
 		},
 	}
 
@@ -42,9 +40,8 @@ func GenerateJWT(userID uint) (string, error) {
 }
 
 // ParseJWT parses and validates the JWT token and returns the claims
-func ParseJWT(tokenString string) (*Claims, error) {
-	// Parse the token without verifying the signature (we'll verify manually later)
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+func ParseJWT(tokenString string) (*AuthClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Ensure the token method is what we expect
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -58,9 +55,15 @@ func ParseJWT(tokenString string) (*Claims, error) {
 	}
 
 	// Check if the token is valid and the claims are what we expect
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
+	claims, ok := token.Claims.(*AuthClaims)
+
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("Token is not valid: %w", err)
 	}
 
-	return nil, fmt.Errorf("invalid token")
+	if claims.ExpiresAt != nil && claims.ExpiresAt.Time.Before(time.Now()) {
+		return nil, fmt.Errorf("Token has expired")
+	}
+
+	return claims, nil
 }

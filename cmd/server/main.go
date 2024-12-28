@@ -45,9 +45,9 @@ func main() {
 	protectGroup.Use(middleware.AuthMiddleware)
 	{
 		// Routes for managing links
+		protectGroup.GET("/links", linkHandler.UpdateLink)
 		protectGroup.POST("/links", linkHandler.CreateLink)
 		protectGroup.PUT("/links/:id", linkHandler.UpdateLink)
-		protectGroup.GET("/links/:id", linkHandler.UpdateLink)
 		protectGroup.DELETE("/links/:id", linkHandler.DeleteLink)
 	}
 

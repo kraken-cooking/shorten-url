@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"shorten-url-be/internal/usecase"
 
@@ -30,7 +31,15 @@ func (h *LinkHandler) CreateLink(c *gin.Context) {
 		return
 	}
 
-	link, err := h.usecase.CreateLink(request.OriginalURL)
+	if strings.TrimSpace(request.OriginalURL) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "OriginalURL must not be empty or null"})
+		return
+	}
+
+	userID, _ := c.Get("userID")
+
+	link, err := h.usecase.CreateLink(request.OriginalURL, userID.(uint))
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating link"})
 		return
@@ -48,7 +57,7 @@ func (h *LinkHandler) GetLinkByShortURL(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, link)
+	c.Redirect(http.StatusFound, link.OriginalURL)
 }
 
 // UpdateLink handles updating the original URL of a link

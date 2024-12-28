@@ -16,11 +16,12 @@ func NewLinkUseCase(repo repository.LinkRepository) *LinkUseCase {
 	return &LinkUseCase{repo: repo}
 }
 
-func (uc *LinkUseCase) CreateLink(originalURL string) (*models.Link, error) {
+func (uc *LinkUseCase) CreateLink(originalURL string, userID uint) (*models.Link, error) {
 	shortURL := utils.GenerateShortURL()
 	link := &models.Link{
 		OriginalURL: originalURL,
 		ShortURL:    shortURL,
+		UserID:      userID,
 	}
 	return uc.repo.Create(link)
 }
