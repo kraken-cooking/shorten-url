@@ -10,6 +10,7 @@ import (
 
 // AuthMiddleware checks for a valid JWT token in the Authorization header
 func AuthMiddleware(c *gin.Context) {
+
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
@@ -26,7 +27,7 @@ func AuthMiddleware(c *gin.Context) {
 
 	claims, err := utils.ParseJWT(tokenParts[1])
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		c.Abort()
 		return
 	}

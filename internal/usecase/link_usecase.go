@@ -34,6 +34,10 @@ func (uc *LinkUseCase) GetAllLinks() ([]models.Link, error) {
 	return uc.repo.GetAll()
 }
 
+func (uc *LinkUseCase) GetLinksByUserID(userID uint) ([]models.Link, error) {
+	return uc.repo.GetAllByUserID(userID)
+}
+
 func (uc *LinkUseCase) UpdateLink(id uint, originalURL string) (*models.Link, error) {
 	link, err := uc.repo.GetByID(id)
 	if err != nil {

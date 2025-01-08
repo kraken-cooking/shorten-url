@@ -8,6 +8,7 @@ type LinkRepository interface {
 	GetByID(id uint) (*models.Link, error)
 	GetByShortURL(shortURL string) (*models.Link, error)
 	GetAll() ([]models.Link, error)
+	GetAllByUserID(userID uint) ([]models.Link, error)
 	Update(link *models.Link) (*models.Link, error)
 	Delete(id uint) error
 }

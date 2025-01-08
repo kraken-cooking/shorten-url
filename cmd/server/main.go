@@ -8,6 +8,7 @@ import (
 	"shorten-url-be/internal/repository"
 	"shorten-url-be/internal/usecase"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -35,6 +36,14 @@ func main() {
 	// Set up Gin router
 	r := gin.Default()
 
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "https://shortenlink.com"}, // Allowed origins (you can also use "*" for all)
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},          // Allowed methods
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},          // Allowed headers
+		AllowCredentials: true,                                                         // Allow cookies and credentials
+		MaxAge:           12 * 3600,                                                    // Pre-flight cache time in seconds
+	}))
+
 	r.POST("/login", authHandler.Login)
 	r.POST("/sign-up", authHandler.SignUp)
 
@@ -45,9 +54,9 @@ func main() {
 	protectGroup.Use(middleware.AuthMiddleware)
 	{
 		// Routes for managing links
-		protectGroup.GET("/links", linkHandler.UpdateLink)
+		protectGroup.GET("/links", linkHandler.GetLinksByUserID)
 		protectGroup.POST("/links", linkHandler.CreateLink)
-		protectGroup.PUT("/links/:id", linkHandler.UpdateLink)
+		// protectGroup.PUT("/links/:id", linkHandler.UpdateLink)
 		protectGroup.DELETE("/links/:id", linkHandler.DeleteLink)
 	}
 

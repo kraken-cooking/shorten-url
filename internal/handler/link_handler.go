@@ -57,7 +57,7 @@ func (h *LinkHandler) GetLinkByShortURL(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, link.OriginalURL)
+	c.JSON(http.StatusOK, gin.H{"originalUrl": link.OriginalURL})
 }
 
 // UpdateLink handles updating the original URL of a link
@@ -91,4 +91,19 @@ func (h *LinkHandler) DeleteLink(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, nil)
+}
+
+// Get all Link By UserID
+func (h *LinkHandler) GetLinksByUserID(c *gin.Context) {
+
+	userID, _ := c.Get("userID")
+
+	links, err := h.usecase.GetLinksByUserID(userID.(uint))
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error get links for user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, links)
 }

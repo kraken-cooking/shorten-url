@@ -9,17 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// LinkHandler handles HTTP requests related to links
 type AuthHandler struct {
 	usecase *usecase.AuthUseCase
 }
 
-// NewLinkHandler creates a new instance of LinkHandler
 func NewAuthHandler(usecase *usecase.AuthUseCase) *AuthHandler {
 	return &AuthHandler{usecase: usecase}
 }
 
-// CreateLink handles the creation of a new shortened link
 func (h *AuthHandler) SignUp(c *gin.Context) {
 	var request struct {
 		Username string `json:"username"`
@@ -33,14 +30,13 @@ func (h *AuthHandler) SignUp(c *gin.Context) {
 
 	user, err := h.usecase.SignUp(request.Username, request.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error Sign Up"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, user)
 }
 
-// GetLinkByShortURL returns a link by its short URL
 func (h *AuthHandler) Login(c *gin.Context) {
 	var request struct {
 		Username string `json:"username"`

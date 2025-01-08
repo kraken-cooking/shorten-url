@@ -47,6 +47,15 @@ func (r *LinkRepositoryGorm) GetAll() ([]models.Link, error) {
 	return links, nil
 }
 
+func (r *LinkRepositoryGorm) GetAllByUserID(userID uint) ([]models.Link, error) {
+	var links []models.Link
+
+	if err := r.db.Where("user_id = ?", userID).Find(&links).Error; err != nil {
+		return nil, err
+	}
+	return links, nil
+}
+
 func (r *LinkRepositoryGorm) Update(link *models.Link) (*models.Link, error) {
 	if err := r.db.Save(link).Error; err != nil {
 		return nil, err
